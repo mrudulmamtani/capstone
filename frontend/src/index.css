@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-ink-100;
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition;
+  }
+  .btn-primary {
+    @apply btn bg-ink-900 text-white hover:bg-ink-800;
+  }
+  .btn-accent {
+    @apply btn bg-accent text-white hover:bg-accent/90;
+  }
+  .btn-ghost {
+    @apply btn text-ink-700 hover:bg-ink-100;
+  }
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+  }
+  .pill-draft    { @apply badge bg-ink-100 text-ink-700; }
+  .pill-review   { @apply badge bg-amber-100 text-amber-800; }
+  .pill-published{ @apply badge bg-emerald-100 text-emerald-800; }
+  .pill-archived { @apply badge bg-ink-100 text-ink-400; }
+  .sev-info      { @apply badge bg-sky-100 text-sky-800; }
+  .sev-warning   { @apply badge bg-amber-100 text-amber-800; }
+  .sev-critical  { @apply badge bg-red-100 text-red-800; }
+}

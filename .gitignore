@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+.vite/
+dist/
+.npm/
+.yarn/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Runtime data
+data/videos/*
+!data/videos/.gitkeep
+data/models/*
+!data/models/.gitkeep
+data/generated_sops/*
+!data/generated_sops/.gitkeep
+data/heatmaps/*
+!data/heatmaps/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Docker volumes
+postgres_data/
+redis_data/

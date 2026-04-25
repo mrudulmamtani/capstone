@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Bash(docker compose:*)",
+      "Bash(timeout 120 tail -f C:/Users/offic/AppData/Local/Temp/claude/C--capstone-vision-sop/af9b5223-3942-4018-bdc3-00e31a8f5834/tasks/buvjmukoj.output)",
+      "Bash(docker ps:*)",
+      "Bash(docker images:*)",
+      "Bash(echo \"EXIT: $?\")"
+    ]
+  }
+}

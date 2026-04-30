@@ -154,11 +154,15 @@ class PPEViolationRule(BaseRule):
             required.update((p.lower() for p in (step.required_ppe or [])))
         self.required = required
         self.window_s = window_s
-        self.state = {"last_seen": {p: -999.0 for p in required}, "fired": set()}
+        self.state = {"started_at": None, "last_seen": {p: None for p in required}, "fired": set()}
 
     def observe(self, score: ActionScore) -> list[RuleResult]:
         if not self.required:
             return []
+
+        if self.state["started_at"] is None:
+            self.state["started_at"] = score.timestamp_s
+
         detected_labels = set(
             (score.scores.get("_detections") or []) if isinstance(score.scores, dict) else []
         )
@@ -171,7 +175,14 @@ class PPEViolationRule(BaseRule):
         for ppe, last in self.state["last_seen"].items():
             if ppe in self.state["fired"]:
                 continue
-            if score.timestamp_s - last > self.window_s:
+
+            reference_time = last
+            if reference_time is None:
+                reference_time = self.state["started_at"]
+            if reference_time is None:
+                continue
+
+            if score.timestamp_s - reference_time > self.window_s:
                 self.state["fired"].add(ppe)
                 results.append(
                     RuleResult(

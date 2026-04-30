@@ -1,6 +1,7 @@
 """Monitoring session routes."""
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
@@ -9,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.alerts.engine import ComplianceEngine
 from app.api.deps import get_current_user
+from app.api.routes.monitor import publish_event
 from app.core.logging import get_logger
 from app.db.session import SessionLocal, get_db
 from app.models.action import ActionEvent
@@ -144,6 +146,7 @@ def _run_session(session_id: str) -> None:
                 for ev in engine.run(
                     result.per_frame_scores, db=db, session=sess
                 ):
+                    asyncio.run(publish_event(sess.id, {"kind": ev.kind, **ev.payload}))
                     if ev.kind == "alert":
                         alerts += 1
 

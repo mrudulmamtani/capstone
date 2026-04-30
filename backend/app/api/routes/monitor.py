@@ -15,6 +15,8 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.db.session import SessionLocal
+from app.models.session import MonitoringSession
 
 log = get_logger(__name__)
 router = APIRouter(prefix="/monitor", tags=["monitor"])
@@ -22,6 +24,41 @@ router = APIRouter(prefix="/monitor", tags=["monitor"])
 
 def session_channel(session_id: str) -> str:
     return f"vision-sop:session:{session_id}"
+
+
+async def _send_session_replay(ws: WebSocket, session_id: str) -> None:
+    db = SessionLocal()
+    try:
+        session = db.get(MonitoringSession, session_id)
+        if not session:
+            return
+
+        actions = sorted(session.actions, key=lambda item: (item.start_s, item.step_index, item.created_at))
+        for action in actions:
+            await ws.send_json(
+                {
+                    "kind": "score",
+                    "timestamp_s": action.start_s,
+                    "label": action.label,
+                    "confidence": action.confidence,
+                }
+            )
+
+        alerts = sorted(session.alerts, key=lambda item: (item.at_s, item.created_at))
+        for alert in alerts:
+            await ws.send_json(
+                {
+                    "kind": "alert",
+                    "rule": alert.rule,
+                    "severity": alert.severity.value,
+                    "title": alert.title,
+                    "message": alert.message,
+                    "at_s": alert.at_s,
+                    "evidence": alert.evidence,
+                }
+            )
+    finally:
+        db.close()
 
 
 @router.websocket("/ws/{session_id}")
@@ -32,6 +69,7 @@ async def monitor_ws(ws: WebSocket, session_id: str) -> None:
     try:
         await pubsub.subscribe(session_channel(session_id))
         await ws.send_json({"kind": "hello", "session_id": session_id})
+        await _send_session_replay(ws, session_id)
 
         async def forward():
             async for message in pubsub.listen():

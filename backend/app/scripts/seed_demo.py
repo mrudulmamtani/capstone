@@ -421,13 +421,11 @@ def _clear_old_demo_data(db: Session) -> None:
         db.delete(session)
 
     for title in [item["title"] for item in DEMO_SOPS]:
-        sop = db.execute(select(SOP).where(SOP.title == title)).scalar_one_or_none()
-        if sop is not None:
+        for sop in db.execute(select(SOP).where(SOP.title == title)).scalars().all():
             db.delete(sop)
 
     for email in [item["email"] for item in DEMO_USERS]:
-        user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
-        if user is not None:
+        for user in db.execute(select(User).where(User.email == email)).scalars().all():
             db.delete(user)
 
     db.flush()
@@ -544,3 +542,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
